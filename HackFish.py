@@ -1,4 +1,5 @@
 
+import os
 try:
     from colorama import init
     from colorama import Fore, Back, Style
@@ -8,7 +9,6 @@ except:
     from colorama import Fore, Back, Style
 print(Fore.GREEN)
 print("<HackerRullerTools> Запуск!")
-import os
 os.system("apt update && apt upgrade")
 
 try:
